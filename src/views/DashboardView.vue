@@ -1,11 +1,13 @@
 <template>
-
     <NavbarComponent />
 
     <v-progress-linear v-if="loading" color="blue-lighten-1" indeterminate></v-progress-linear>
 
     <v-row v-if="!loading" class="mt-5 justify-center">
         <v-col md="8">
+            <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5"
+                @input="updatePage"></v-pagination>
+
             <v-table class="hover-table">
                 <thead>
                     <tr>
@@ -16,10 +18,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="client in clients" :key="client.client_id">
+                    <tr v-for="client in paginatedClients" :key="client.client_id">
                         <td class="py-3">
-                            <a class="text-body-1" :href="'/details/' + client.client_id">{{
-                                client.company_name }}</a>
+                            <a class="text-body-1" :href="'/details/' + client.client_id">{{ client.company_name }}</a>
                         </td>
                         <td>
                             <span v-if="!client.logged_in_user_last_checkin" class="text-secondary">Never</span>
@@ -62,30 +63,39 @@
                 </tbody>
             </v-table>
 
+            <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5"
+                @input="updatePage"></v-pagination>
         </v-col>
     </v-row>
-
 </template>
 
 <script setup>
 import NavbarComponent from '@/components/NavbarComponent'
 import useAPICall from '@/composables/useAPICall'
 import { useUserData } from '@/stores/UserDataStore'
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const { APIResponse, HTTPResponseCode, APICall, loading, error } = useAPICall();
 const userStore = useUserData();
 const router = useRouter();
-const clients = ref(null);
+const clients = ref([]);
 const checkinDaysThreshold = ref(process.env.VUE_APP_CHECKIN_DAYS_THRESHOLD);
 
-const openClient = (clientId) => {
-    router.push({ name: 'details', params: { clientId: clientId } });
-}
+const currentPage = ref(1);
+const itemsPerPage = ref(20);
+
+const totalPages = computed(() => {
+    return Math.ceil(clients.value.length / itemsPerPage.value);
+});
+
+const paginatedClients = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return clients.value.slice(start, end);
+});
 
 const fetchClients = async () => {
-
     await APICall({
         endpoint: '/dashboardclients',
         headers: {
@@ -95,16 +105,19 @@ const fetchClients = async () => {
     });
 
     if (HTTPResponseCode.value === 200 && APIResponse.value.clients) {
-        clients.value = APIResponse.value.clients
-    }
-    else {
-        console.error(error)
+        clients.value = APIResponse.value.clients;
+    } else {
+        console.error(error);
     }
 };
 
 onMounted(() => {
     fetchClients();
 });
+
+const updatePage = (page) => {
+    currentPage.value = page;
+};
 </script>
 
 <style scoped>
