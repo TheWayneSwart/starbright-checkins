@@ -21,8 +21,6 @@
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "vue-cli-plugin-vuetify": "~2.5.8",
