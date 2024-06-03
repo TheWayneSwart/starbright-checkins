@@ -8,9 +8,8 @@
 
             <v-row class="justify-center">
                 <v-col cols="12" md="6">
-                    <v-autocomplete label="Search" :clear-on-select="true"
-                        :items="clients" item-title="company_name" item-value="client_id"
-                        prepend-inner-icon="mdi-magnify" @update:modelValue="openSearch">
+                    <v-autocomplete label="Search" :clear-on-select="true" :items="clients" item-title="company_name"
+                        item-value="client_id" prepend-inner-icon="mdi-magnify" @update:modelValue="openSearch">
                     </v-autocomplete>
                 </v-col>
             </v-row>
@@ -19,27 +18,27 @@
                 <thead>
                     <tr>
                         <th class="text-left">Client company</th>
-                        <th class="text-left">Your last checkin</th>
+                        <th class="text-center">Your last checkin</th>
                         <th class="text-center">Total checkins</th>
-                        <th>&nbsp;</th>
+                        <th class="text-center">Services</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="client in paginatedClients" :key="client.client_id">
-                        <td class="py-3">
+                        <td class="py-3" style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             <a class="text-body-1" :href="'/details/' + client.client_id">{{ client.company_name }}</a>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <span v-if="!client.logged_in_user_last_checkin" class="text-secondary">Never</span>
                             <span v-else="client.logged_in_user_last_checkin.days"
                                 :class="client.logged_in_user_last_checkin.days >= checkinDaysThreshold ? 'text-danger' : 'text-success'">{{
                                     client.logged_in_user_last_checkin.days + ' days' }}</span>
                         </td>
                         <td class="text-center">{{ client.total_checkins }}</td>
-                        <td class="text-right">
+                        <td class="text-center">
                             <v-dialog max-width="800">
                                 <template v-slot:activator="{ props: activatorProps }">
-                                    <v-btn v-bind="activatorProps" variant="tonal" color="primary"
+                                    <v-btn v-bind="activatorProps" variant="tonal" color="secondary"
                                         :text="client.services.length + ' services'"></v-btn>
                                 </template>
                                 <template v-slot:default="{ isActive }">
@@ -104,7 +103,7 @@ const paginatedClients = computed(() => {
 
 // Search
 const openSearch = (clientId) => {
-    if ( clientId ) {
+    if (clientId) {
         router.push({
             name: 'details',
             params: { clientId: clientId }

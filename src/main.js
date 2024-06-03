@@ -22,15 +22,12 @@ const vuetify = createVuetify({
         themes: {
             dark: {
                 colors: {
-                    primary: '#3c89c1',
-                    secondary: '#777777',
+                    primary: '#3fccff',
+                    secondary: '#c4c4c4',
                     warning: '#F76800',
-                    danger: '#eb4b4b'
+                    danger: '#ff5e5e'
                 }
-            },
-            variables: {
-                fontFamily: 'Radio Canada Big, sans-serif'
-            }
+            },            
         },
     },
     icons: {
