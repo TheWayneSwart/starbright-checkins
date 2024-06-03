@@ -5,8 +5,15 @@
 
     <v-row v-if="!loading" class="mt-5 justify-center">
         <v-col md="8">
-            <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5"
-                @input="updatePage"></v-pagination>
+
+            <v-row class="justify-center">
+                <v-col cols="12" md="6">
+                    <v-autocomplete label="Search" :clear-on-select="true"
+                        :items="clients" item-title="company_name" item-value="client_id"
+                        prepend-inner-icon="mdi-magnify" @update:modelValue="openSearch">
+                    </v-autocomplete>
+                </v-col>
+            </v-row>
 
             <v-table class="hover-table">
                 <thead>
@@ -63,7 +70,7 @@
                 </tbody>
             </v-table>
 
-            <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5"
+            <v-pagination class="mt-3" v-model="currentPage" :length="totalPages" :total-visible="8"
                 @input="updatePage"></v-pagination>
         </v-col>
     </v-row>
@@ -83,7 +90,7 @@ const clients = ref([]);
 const checkinDaysThreshold = ref(process.env.VUE_APP_CHECKIN_DAYS_THRESHOLD);
 
 const currentPage = ref(1);
-const itemsPerPage = ref(20);
+const itemsPerPage = ref(10);
 
 const totalPages = computed(() => {
     return Math.ceil(clients.value.length / itemsPerPage.value);
@@ -94,6 +101,16 @@ const paginatedClients = computed(() => {
     const end = start + itemsPerPage.value;
     return clients.value.slice(start, end);
 });
+
+// Search
+const openSearch = (clientId) => {
+    if ( clientId ) {
+        router.push({
+            name: 'details',
+            params: { clientId: clientId }
+        })
+    }
+};
 
 const fetchClients = async () => {
     await APICall({
