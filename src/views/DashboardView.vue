@@ -1,5 +1,4 @@
 <template>
-    <NavbarComponent />
 
     <v-progress-linear v-if="loading" color="blue-lighten-1" indeterminate></v-progress-linear>
 
@@ -25,8 +24,9 @@
                 </thead>
                 <tbody>
                     <tr v-for="client in paginatedClients" :key="client.client_id">
-                        <td class="py-3" style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            <a class="text-body-1" :href="'/details/' + client.client_id">{{ client.company_name }}</a>
+                        <td class="py-3"
+                            style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <a class="text-body-1 interactable-item" @click="setActiveClient(client.client_id)">{{ client.company_name }}</a>
                         </td>
                         <td class="text-center">
                             <span v-if="!client.logged_in_user_last_checkin" class="text-secondary">Never</span>
@@ -76,14 +76,15 @@
 </template>
 
 <script setup>
-import NavbarComponent from '@/components/NavbarComponent'
 import useAPICall from '@/composables/useAPICall'
-import { useUserData } from '@/stores/UserDataStore'
-import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/User'
+import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import { useClientStore } from '@/stores/Client'
 
 const { APIResponse, HTTPResponseCode, APICall, loading, error } = useAPICall();
-const userStore = useUserData();
+const clientStore = useClientStore();
+const userStore = useUserStore();
 const router = useRouter();
 const clients = ref([]);
 const checkinDaysThreshold = ref(process.env.VUE_APP_CHECKIN_DAYS_THRESHOLD);
@@ -104,10 +105,8 @@ const paginatedClients = computed(() => {
 // Search
 const openSearch = (clientId) => {
     if (clientId) {
-        router.push({
-            name: 'details',
-            params: { clientId: clientId }
-        })
+        clientStore.setClientId(clientId);
+        userStore.setView('details');
     }
 };
 
@@ -127,6 +126,14 @@ const fetchClients = async () => {
     }
 };
 
+// Set the active clientId
+const setActiveClient = (clientId) => {
+    clientStore.setClientId(clientId);
+    userStore.setView('details');
+}
+
+// Watch for changes in the isLoggedIn state
+
 onMounted(() => {
     fetchClients();
 });
@@ -137,5 +144,7 @@ const updatePage = (page) => {
 </script>
 
 <style scoped>
-/* Add any component-specific styles here */
+.interactable-item {
+    cursor: pointer;
+}
 </style>

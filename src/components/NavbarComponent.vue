@@ -1,6 +1,6 @@
 <template>
-    <v-app-bar :elevation="16" v-if="userStore.loggedIn">
-        <v-app-bar-title><a href="/">Checkins Dashboard</a></v-app-bar-title>
+    <v-app-bar :elevation="16">
+        <v-app-bar-title><a @click="setUserView('dashboard')" href="#">Checkins Dashboard</a></v-app-bar-title>
         <v-spacer></v-spacer>
         <v-menu>
             <template v-slot:activator="{ props }">
@@ -45,32 +45,21 @@
 
 <script setup>
 
-import { useUserData } from '@/stores/UserDataStore'
+import { useUserStore } from '@/stores/User'
 import { useRouter } from 'vue-router'
 import useAPICall from '@/composables/useAPICall'
 
 const router = useRouter();
 const { APIResponse, HTTPResponseCode, APICall, loading, error } = useAPICall();
-const userStore = useUserData();
+const userStore = useUserStore();
 
 const logout = async () => {
+    userStore.logout(); 
+}
 
-    await APICall({
-        endpoint: '/signout',
-        headers: {
-            Authorization: `Bearer ${userStore.token}`,
-        },
-        method: 'GET'
-    });
-
-    if (HTTPResponseCode.value === 204) {
-        userStore.clearUserData();        
-    }
-    else {
-        console.error(error);
-    }
-
-    router.push({ name: 'notloggedIn' });
+// Set the active clientId
+const setUserView = (view) => {    
+    userStore.setView(view);
 }
 
 </script>

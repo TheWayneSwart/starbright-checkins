@@ -1,6 +1,5 @@
 <template>
-
-    <NavbarComponent />
+    
     <v-progress-linear v-if="readingClient" color="blue-lighten-1" indeterminate></v-progress-linear>
 
     <v-container v-if="!readingClient">
@@ -103,16 +102,16 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useUserData } from '@/stores/UserDataStore'
+import { useUserStore } from '@/stores/User'
+import { useClientStore } from '@/stores/Client'
 import { nl2br } from '@/utils/nl2br'
-import NavbarComponent from '@/components/NavbarComponent'
 import useAPICall from '@/composables/useAPICall'
 
 const { APIResponse, HTTPResponseCode, APICall, loading, error } = useAPICall();
 const route = useRoute();
 const router = useRouter();
-const userStore = useUserData();
-
+const clientStore = useClientStore();
+const userStore = useUserStore();
 const selectedServices = ref([]);
 const checkinDescription = ref(null);
 const companyName = ref(null);
@@ -154,7 +153,7 @@ const fetchClientDetails = async () => {
 
     try {
         await APICall({
-            endpoint: '/clientdetails/' + route.params.clientId,
+            endpoint: '/clientdetails/' + clientStore.clientId,
             headers: {
                 Authorization: `Bearer ${userStore.token}`,
             },
@@ -171,7 +170,7 @@ const fetchClientDetails = async () => {
                     Authorization: `Bearer ${userStore.token}`,
                 },
                 APIParameters: {
-                    client_id: route.params.clientId
+                    client_id: clientStore.clientId
                 },
                 method: 'POST'
             });
@@ -207,7 +206,7 @@ const submitForm = async () => {
             Authorization: `Bearer ${userStore.token}`,
         },
         APIParameters: {
-            client_id: route.params.clientId,
+            client_id: clientStore.clientId,
             description: checkinDescription.value,
             service_ids: selectedServices.value
         },

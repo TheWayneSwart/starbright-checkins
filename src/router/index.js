@@ -1,17 +1,15 @@
-import { createRouter, createWebHistory } from 'vue-router'
-
-import DashboardView from '@/views/DashboardView'
-import DetailedView from '@/views/DetailedView'
-import AuthComponent from '@/components/AuthComponent'
-import { useUserData } from '@/stores/UserDataStore'
-import notLoggedIn from '@/views/notLoggedInView'
-import ForOhFour from '@/views/ForOhFour'
+// router.js or routes.js
+import { createRouter, createWebHistory } from 'vue-router';
+import DashboardView from '@/views/DashboardView';
+import AuthComponent from '@/components/AuthComponent';
+import ForOhFour from '@/views/ForOhFour';
+import { useUserStore } from '@/stores/User';
 
 const routes = [
     {
         path: '/:catchAll(.*)',
         name: 'defaultCatAllRoute',
-        component: ForOhFour
+        component: ForOhFour,
     },
     {
         path: '/',
@@ -20,42 +18,28 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
-        path: '/details/:clientId',
-        name: 'details',
-        component: DetailedView,
-        meta: { requiresAuth: true },
-    },
-    {
         path: '/auth/:token',
         name: 'Auth',
-        component: AuthComponent
+        component: AuthComponent,
     },
-    {
-        path: '/notloggedin',
-        name: 'notloggedIn',
-        component: notLoggedIn
-    }
-]
+];
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
-    routes
-})
-
+    routes,
+});
 
 // Navigation guard to check for logged-in status
 router.beforeEach((to, from, next) => {
-    const userStore = useUserData();
+    const userStore = useUserStore();
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (userStore.loggedIn) {
+        if (userStore.isLoggedIn) {
             next();
-        } else {
-            next('/notloggedin');
         }
     } else {
         next();
     }
 });
 
-export default router
+export default router;
